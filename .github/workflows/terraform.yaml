@@ -1,4 +1,4 @@
-name: Terraform CI/CD Pipeline 2023bcs0005
+name: Terraform CI/CD Pipeline 2023BCS0005
 
 on:
   push:
@@ -9,8 +9,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+        kubectl version --client
+
+    - name: Install Minikube
+      run: |
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+    - name: Start Minikube
+      run: |
+        minikube start --driver=docker --force
+        minikube status
+        kubectl get nodes
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
@@ -18,8 +36,5 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    - name: Terraform Validate
-      run: terraform validate
-
-    - name: Terraform Plan
-      run: terraform plan
+    - name: Terraform Apply
+      run: terraform apply -auto-approve

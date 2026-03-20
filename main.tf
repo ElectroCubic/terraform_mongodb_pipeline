@@ -1,4 +1,3 @@
-
 # Anush Bundel 2023BCS0005
 
 provider "kubernetes" {
